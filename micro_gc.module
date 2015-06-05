@@ -57,9 +57,17 @@ function micro_gc_resource() {
   return 'http://maps.googleapis.com/maps/api/geocode/json';
 }
 
+function micro_gc_api_key() {
+  return variable_get('micro_gc_api_key', FALSE);
+}
+
 function micro_gc_geocode($query) {
   $endpoint = micro_gc_resource();
   $endpoint .= '?address=' . urlencode($query);
+  $key = micro_gc_api_key();
+  if (!empty($key)) {
+    $endpoint .= '&key=' . $key;
+  } 
   return file_get_contents($endpoint);
 }
 
