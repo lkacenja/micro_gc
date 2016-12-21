@@ -1,0 +1,50 @@
+<?php
+
+function micro_gc_schema() {
+  $schema = array();
+  $schema['micro_gc_cache'] = array(
+    'description' => 'The base table for nodes.',
+    'fields' => array(
+      'gcid' => array(
+        'description' => 'Primary key for cached geocodings',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'gc_key' => array(
+        'description' => 'Hash of the query',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'gc_raw' => array(
+        'description' => 'Raw query',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'gc_coords' => array(
+        'description' => 'Coordinates from the geocoding.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'gc_geo' => array(
+        'description' => 'Complete serialized geography info',
+        'type' => 'text',
+      ),
+      'gc_time' => array(
+        'description' => 'Timestamp',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('gcid'),
+  );
+  return $schema;
+}

@@ -1,0 +1,5 @@
+name: Micro GC 
+type: module
+description: Geocoding features
+core: 8.x
+package: CIVIC

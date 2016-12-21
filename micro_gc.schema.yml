@@ -1,0 +1,6 @@
+micro.settings:
+  type: mapping
+  label: Variable Settings
+  mapping:
+    api_key:
+      type: string

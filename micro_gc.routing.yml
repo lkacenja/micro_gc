@@ -1,0 +1,9 @@
+micro_gc.geocode:
+  path: '/micro-gc/{address}'
+  defaults: 
+    _controller: '\Drupal\micro_gc\Controller\MicroGC::content' 
+    _title: 'Micro Geocoder endpoint'
+  requirements: 
+    _permission: 'access content' 
+    _method: 'GET'
+    _format: 'html|json'

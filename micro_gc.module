@@ -1,0 +1,108 @@
+<?php
+
+function micro_gc_query($query) {
+  $key = micro_gc_query_to_key($query);
+  $cache = micro_gc_get_cache_item($key);
+  if (!empty($cache)) {
+    return $cache->gc_geo;
+  }
+  $result = micro_gc_geocode($query);
+  $result = json_decode($result);
+
+  if ($result->status == "OK") {
+    $point = micro_gc_coords_to_wkt($result->results[0]->geometry->location);
+    $geo = $result->results[0];
+
+    $cache_item = [];
+    $cache_item['gc_key'] = $key;
+    $cache_item['gc_raw'] = $query;
+    $cache_item['gc_coords'] = $point;
+    $cache_item['gc_geo'] = serialize($result->results[0]);
+    micro_gc_set_cache_item($cache_item); 
+    return $geo;
+  }
+  return FALSE;
+}
+
+function micro_gc_query_county($query) {
+  $result = micro_gc_query($query);
+  foreach ($result->address_components as $component) {
+    foreach ($component->types as $type) {
+      if ($type == 'administrative_area_level_2') {
+        return $component->long_name;
+      }
+    }
+  }
+
+  return false;
+}
+
+function micro_gc_coords_to_wkt($coords) {
+  if (is_object($coords) && $coords->lat && $coords->lng) {
+    return "POINT(" . $coords->lng . " " . $coords->lat . ")";
+  }
+  return FALSE;
+}
+
+function micro_gc_query_to_key($query) {
+  return md5($query);
+}
+
+function micro_gc_resource() {
+  return 'https://maps.googleapis.com/maps/api/geocode/json';
+}
+
+function micro_gc_api_key() {
+  $config = \Drupal::config('micro_gc.settings');
+  $api_key = $config->get('api_key');
+
+  return $api_key;
+}
+
+function micro_gc_geocode($query) {
+  $endpoint = micro_gc_resource();
+  $endpoint .= '?address=' . urlencode($query);
+  $key = micro_gc_api_key();
+  if (!empty($key)) {
+    $endpoint .= '&key=' . $key;
+  } 
+
+  return file_get_contents($endpoint);
+}
+
+/**
+ * Cache getter
+ */
+function micro_gc_get_cache_item($key) {
+  $query = \Drupal::database()->select('micro_gc_cache', 'cache');
+  $query->addField('cache', 'gcid');
+  $query->addField('cache', 'gc_key');
+  $query->addField('cache', 'gc_raw');
+  $query->addField('cache', 'gc_coords');
+  $query->addField('cache', 'gc_time');
+  $query->addField('cache', 'gc_geo');
+  $query->condition('cache.gc_key', $key);
+  $resource = $query->execute()->fetchObject();
+
+  if (!empty($resource)) {
+    $resource->gc_geo = unserialize($resource->gc_geo);
+
+    return $resource;
+  }
+  else {
+    return false;
+  }
+}
+
+/**
+ * Cache setter
+ */
+function micro_gc_set_cache_item($item) {
+  $item->gc_time = time();
+
+  db_insert('micro_gc_cache')
+    ->fields($item)
+    ->execute();
+
+  return;
+}
