@@ -54,7 +54,7 @@ function micro_gc_query_to_key($query) {
 }
 
 function micro_gc_resource() {
-  return 'http://maps.googleapis.com/maps/api/geocode/json';
+  return 'https://maps.googleapis.com/maps/api/geocode/json';
 }
 
 function micro_gc_api_key() {
