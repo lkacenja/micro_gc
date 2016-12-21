@@ -1,4 +1,0 @@
-name = Micro Geocoder
-description = A tiny lightweight geocoding utility. Provides utiltiy functions and an endpoint.
-core = 7.x
-package = other
